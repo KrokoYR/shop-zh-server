@@ -25,29 +25,24 @@ import { Task } from './task.entity';
 import { GetUser } from '../auth/get-user.decorator';
 import { User } from '../auth/user.entity';
 
-@ApiBearerAuth()
 @Controller('tasks')
-@UseGuards(AuthGuard())
 export class TasksController {
     private logger = new Logger('TasksController');
     constructor(private tasksService: TasksService) {}
 
     @Get()
-    getTasks(
-        @Query(ValidationPipe) filterDto: GetTasksFilterDto,
-        @GetUser() user: User,
-    ): Promise<Task[]> {
-        this.logger.verbose(
-            `User "${user.username}" retrieving all tasks. Filter: ${JSON.stringify(filterDto)}`,
-        );
-        return this.tasksService.getTasks(filterDto, user);
+    getTasks(@Query(ValidationPipe) filterDto: GetTasksFilterDto): Promise<Task[]> {
+        this.logger.verbose(`Retrieving all tasks. Filter: ${JSON.stringify(filterDto)}`);
+        return this.tasksService.getTasks(filterDto);
     }
 
     @Get('/:id')
-    async getTaskById(@Param('id', ParseIntPipe) id: number, @GetUser() user: User): Promise<Task> {
-        return this.tasksService.getTaskById(id, user);
+    async getTaskById(@Param('id', ParseIntPipe) id: number): Promise<Task> {
+        return this.tasksService.getTaskById(id);
     }
 
+    @UseGuards(AuthGuard())
+    @ApiBearerAuth()
     @Post()
     @UsePipes(ValidationPipe)
     createTask(@Body() createTaskDto: CreateTaskDto, @GetUser() user: User): Promise<Task> {
@@ -57,17 +52,21 @@ export class TasksController {
         return this.tasksService.createTask(createTaskDto, user);
     }
 
+    @UseGuards(AuthGuard())
+    @ApiBearerAuth()
     @Delete('/:id')
     deleteTask(@Param('id', ParseIntPipe) id: number, @GetUser() user: User): Promise<void> {
         return this.tasksService.deleteTask(id, user);
     }
 
+    @UseGuards(AuthGuard())
+    @ApiBearerAuth()
     @Patch('/:id/status')
     updateTaskStatus(
         @Param('id', ParseIntPipe) id: number,
         @Body('status', TaskStatusValidationPipe) status: TaskStatus,
         @GetUser() user: User,
     ): Promise<Task> {
-        return this.tasksService.updateTaskStatus(id, status, user);
+        return this.tasksService.updateTaskStatus(id, status);
     }
 }

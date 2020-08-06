@@ -5,7 +5,7 @@ import { TaskStatus } from '../task-status.enum';
 export class TaskStatusValidationPipe implements PipeTransform {
     readonly allowedStatuses = [TaskStatus.OPEN, TaskStatus.IN_PROGRESS, TaskStatus.DONE];
 
-    transform(value: any) {
+    transform(value: string): string {
         value = value.toUpperCase();
 
         if (!this.isStatusValid(value)) {
